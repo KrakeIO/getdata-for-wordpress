@@ -4,7 +4,7 @@
 ?>
 
 <h1>DataSource Settings</h1>
-<form method='post' action='admin.php?page=getdata/getdata.php/set-data-source'>
+<form method='post' action='admin.php?page=getdata/controllers/admin_controller.php/set-data-source'>
   Unique ID of Data Repository : 
   <input name='getdata_unique_datasource_id' value="<?php echo $UNIQUE_ID; ?>">
   <br>
@@ -15,7 +15,6 @@
 
 <?php 
   if(!isset($UNIQUE_ID) || strlen($UNIQUE_ID) == 0) return;
-  include( WP_PLUGIN_DIR . '/getdata/krake_client.php' );
   $krake_client    = new KrakeClient($UNIQUE_ID);  
   $data_schema    = $krake_client->getColumns();
   $data_columns   = $data_schema->columns;

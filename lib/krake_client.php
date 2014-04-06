@@ -12,7 +12,6 @@
     // If no index_columns were indicated returns and empty array
     // $batch:String
     public function getBatchAdditions($batch) {
-
       if(!$this->usesIndex()) {
         return array();
       }
