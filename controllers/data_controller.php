@@ -5,17 +5,23 @@ class DataController {
   const POST_KEY = 'post_title';
 
   public function __construct($krake_data_unique_id, $batch) {
-    $this->handle = $krake_data_unique_id;
-    $this->batch = $batch;
+    $this->handle       = $krake_data_unique_id;
+    $this->batch        = $batch;
     $this->krake_client = new KrakeClient($this->handle);
     $this->sychronize();
   }
 
   public function sychronize() {
+    $this->additions      = array();
+    $this->deletions      = array();
+    $this->modifications  = array();
     $this->hasValidHandle();
     $this->hasMapping();
+    $this->loginDefaultUser();
+    $this->processDeletions();
     $this->processAdditions();
     $this->processModifications();
+
     $this->returnJson(
       "success", 
       array(
@@ -62,14 +68,41 @@ class DataController {
         'failed',
         'columns not mapped yet',
         'columns not mapped yet' 
-      );  
+      );
     }
   }
+
+  public function loginDefaultUser() {
+    global $current_user;
+    $user_id = $this->data_mapping["default_user_id"];
+    if(!isset($user_id)) {
+      $this->returnJson(
+        'failed',
+        'default user not indicated',
+        'default user not indicated' 
+      );
+    }
+    $current_user = get_user_by( 'id', $user_id );
+  }  
 
   public function processAdditions() {
     $records_add = $this->krake_client->getBatchAdditions($this->batch);
     foreach($records_add as $record) {
-      $post = $this->getPostArray($record);  
+
+      $post                 = $this->getPostArray($record);
+      $record               = (array) $record;
+      $post_title           = $record[ $this->data_mapping['post_title'] ];
+      $existing_post_id     = $this->findPostId( $post_title );
+      $post['post_status']  = $this->data_mapping['default_post_status'];
+
+      if(isset($existing_post_id)) {
+        $post['ID'] = $existing_post_id;
+        $this->updatePost($post);
+
+      } else {
+        $this->insertPost($post);
+
+      }
     }
 
   }
@@ -78,11 +111,37 @@ class DataController {
     $records_mod = $this->krake_client->getBatchModifications($this->batch);
     foreach($records_mod as $record) {
 
+      $post                 = $this->getPostArray($record);
+      $record               = (array) $record;
+      $post_title           = $record[ $this->data_mapping['post_title'] ];
+      $existing_post_id     = $this->findPostId( $post_title );
+      $post['post_status']  = $this->data_mapping['default_post_status'];
+
+      if(isset($existing_post_id)) {
+        $post['ID'] = $existing_post_id;
+        $this->updatePost($post);
+
+      } else {
+        $this->insertPost($post);
+
+      }
     }
   }  
 
   public function processDeletions() {
-    $records_del = $this->krake_client->getBatchDeletions($this->$batch);
+    $records_del = $this->krake_client->getBatchDeletions($this->batch);
+    foreach($records_del as $record) {
+
+      $post                 = $this->getPostArray($record);
+      $record               = (array) $record;
+      $post_title           = $record[ $this->data_mapping['post_title'] ];
+      $existing_post_id     = $this->findPostId( $post_title );
+      $post['post_status']  = $this->data_mapping['deleted_post_status'];
+      if(isset($existing_post_id)) {
+        $post['ID'] = $existing_post_id;
+        $this->updatePost($post);
+      }
+    }    
   }
 
   public function getPostTitleColumn() {
@@ -90,14 +149,20 @@ class DataController {
   }
 
   public function findPostId($title) {
+    $post = get_page_by_title($title, OBJECT, $this->data_mapping['post_type']);
+    if(!isset($post)) {
+      return NULL;
 
+    } else {
+      return $post->ID;
+
+    }
   }
 
   public function getPostArray($data_record_row) {
     $data_record_row = (array) $data_record_row;
 
     $post = array(
-      // 'ID'             => 37, // Are you updating an existing post?
       'post_content'   => $data_record_row[ $this->data_mapping['post_content'] ],
       'post_name'      => $data_record_row[ $this->data_mapping['post_title'] ],
       'post_title'     => $data_record_row[ $this->data_mapping['post_title'] ],
@@ -112,15 +177,20 @@ class DataController {
 
   }
 
-  public function insertPost($data_record_row) {
-    $post = $this->getPostArray($data_record_row);  
+  public function insertPost($post) {
     $insert_error = wp_insert_post($post, true);
 
   }
 
-  public function updatePost($post_id, $data_record_row) {
-    $post = $this->getPostArray($data_record_row);  
-    $post["ID"] = $post_id;
+  public function updatePost($post) {
+    if(in_array($post['post_status'], array('draft', 'pending', 'auto-draft'))) {
+      $post['post_date_gmt'] = '0000-00-00 00:00:00';
+
+    } else if ($post['post_status'] == 'publish' ) {
+      $post['post_date_gmt'] = gmdate( 'Y-m-d H:i:s', strtotime('now') );
+
+    }
+
     wp_update_post( $post );
 
   }

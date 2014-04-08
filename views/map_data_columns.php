@@ -34,13 +34,30 @@
     );
   }
 
-  $post_type = array( "listing_type", "page", "post", "revision" );
+  $SUPPORTED_POST_TYPE = array( 'listing_type', 'page', 'post', 'revision' );
+  $SUPPORTED_POST_STATUS = array( 'draft', 'publish', 'pending', 'future', 'private' );
+
+  $all_users = get_users( array() );
 
 ?>
 
 <h1>DataSource Mappings</h1>
 <form method='post' action='admin.php?page=getdata/controllers/admin_controller.php/map-data-columns'>
   <table>
+
+    <tr>
+      <td>Default User (Required)</td>
+      <td>
+        <select name='get_data[default_user_id]'>
+          <?php foreach( $all_users  as $user) { ?>
+            <option <?php if($getdata_mapping["default_user_id"] == $user->ID) echo "selected"; ?> value="<?php echo $user->ID; ?>">
+              <?php echo $user->user_login; ?>
+            </option>
+          <?php } ?>
+        </select>
+      </td>
+    </tr>
+
     <tr>
       <th>Product attribute</th>
       <th>Data Source Column</th>
@@ -89,14 +106,42 @@
       <td>Post Type</td>
       <td>
         <select name='get_data[post_type]'>
-          <?php foreach( $post_type  as $col_name) { ?>
-            <option <?php if($getdata_mapping["post_excerpt"] == $col_name) echo "selected"; ?>>
+          <?php foreach( $SUPPORTED_POST_TYPE  as $col_name) { ?>
+            <option <?php if($getdata_mapping["post_type"] == $col_name) echo "selected"; ?>>
               <?php echo $col_name; ?>
             </option>
           <?php } ?>
         </select>
       </td>
-    </tr>    
+    </tr>
+
+    <tr>
+      <td>Default Post Status</td>
+      <td>
+        <select name='get_data[default_post_status]'>
+          <?php foreach( $SUPPORTED_POST_STATUS  as $col_name) { ?>
+            <option <?php if($getdata_mapping["default_post_status"] == $col_name) echo "selected"; ?>>
+              <?php echo $col_name; ?>
+            </option>
+          <?php } ?>
+        </select>
+      </td>
+    </tr>
+
+
+    <tr>
+      <td>Deleted entry Post Status</td>
+      <td>
+        <select name='get_data[deleted_post_status]'>
+          <?php foreach( $SUPPORTED_POST_STATUS  as $col_name) { ?>
+            <option <?php if($getdata_mapping["deleted_post_status"] == $col_name) echo "selected"; ?>>
+              <?php echo $col_name; ?>
+            </option>
+          <?php } ?>
+        </select>
+      </td>
+    </tr>
+
   </table>
   <input type='submit' value="save mappings">  
 </form>
