@@ -1,0 +1,12 @@
+.section-header {
+  margin-top: 40px;
+}
+
+.col-header {
+  font-weight: bold;
+  font-size: 15px;
+}
+
+.remove-butt {
+  cursor: pointer;
+}

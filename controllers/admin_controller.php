@@ -31,6 +31,17 @@ class AdminController {
         __FILE__ . '/map-data-columns', 
         array($this, 'renderMappingsPage')
       );
+
+      $this->registerStyleSheets();
+      $this->registerJavascripts();
+  }
+
+  public function registerStyleSheets(){
+    wp_register_style( 'GetDataMapDataColumnsStyle', plugins_url('/getdata/assets/stylesheets/map_data_columns.css') );
+  }
+
+  public function registerJavascripts(){
+    wp_register_script( 'GetDataMapDataColumnsScript', plugins_url('/getdata/assets/javascripts/map_data_columns.js') );
   }
 
   public function readmePage() {
@@ -43,7 +54,7 @@ class AdminController {
   }
 
   public function renderMappingsPage(){
-    $this->saveMappings();
+    $this->saveMappings();    
     require( WP_PLUGIN_DIR . '/getdata/views/map_data_columns.php' );
   }
 

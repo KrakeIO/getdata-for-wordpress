@@ -1,5 +1,8 @@
 <?php
 
+  wp_enqueue_style( 'GetDataMapDataColumnsStyle' );
+  wp_enqueue_script( 'GetDataMapDataColumnsScript' );
+
   $UNIQUE_ID = get_option('getdata_unique_datasouce_id');
   if(!isset($UNIQUE_ID) || strlen($UNIQUE_ID) == 0) {
     ?>
@@ -43,8 +46,10 @@
 
 <h1>DataSource Mappings</h1>
 <form method='post' action='admin.php?page=getdata/controllers/admin_controller.php/map-data-columns'>
-  <table>
 
+  <input type='submit' value="save mappings">  
+  <h2 class='section-header'>User Settings</h2>
+  <table>
     <tr>
       <td>Default User (Required)</td>
       <td>
@@ -57,12 +62,14 @@
         </select>
       </td>
     </tr>
+  </table>
 
+  <h2 class='section-header'>Post Attributes Mapping</h2>
+  <table>
     <tr>
-      <th>Product attribute</th>
-      <th>Data Source Column</th>
+      <td class='col-header'>Post attribute name</td>
+      <td class='col-header'>Data Source Column</td>
     </tr>
-
     <tr>
       <td>Post Title (Unique)</td>
       <td>
@@ -141,7 +148,38 @@
         </select>
       </td>
     </tr>
+  </table>
+
+  <h2 class='section-header'>Post Meta Mapping</h2>
+  <table id='post_meta_mappings'>
+
+    <thead>
+      <tr>
+        <td class='col-header'>Post Meta name</td>
+        <td class='col-header'>Data Source Column</td>
+      </tr>      
+    </thead>
+
+    <tbody>
+      <tr class='postmeta_row'>
+        <td>Price</td>
+        <td>
+          <select name='get_data[post_meta][price]'>
+            <?php foreach( $data_columns  as $col_name) { ?>
+                <option <?php if($getdata_mapping["post_content"] == $col_name) echo "selected"; ?>>
+                  <?php echo $col_name; ?>
+                </option>
+            <?php } ?>
+          </select>
+        </td>
+        <td>
+          <a class='remove-butt'>Remove</a>
+        </td>
+      </tr>
+    </tbody>
 
   </table>
-  <input type='submit' value="save mappings">  
+
+
+
 </form>
