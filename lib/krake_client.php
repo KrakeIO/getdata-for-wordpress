@@ -193,8 +193,6 @@
       curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
       curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 0);
       $data = curl_exec($ch);
-      error_log($data_feed_url);      
-      error_log(curl_getinfo($ch, CURLINFO_SIZE_DOWNLOAD));
       curl_close($ch);
       return stripcslashes($data);
     }
