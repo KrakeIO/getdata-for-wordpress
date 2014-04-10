@@ -12,7 +12,6 @@
     return; 
   }
 
-
   // 1_df30aaa36f078d501bae3f5ff10d78c7eses
   $UNIQUE_ID = get_option('getdata_unique_datasouce_id');
   $krake_client   = new KrakeClient($UNIQUE_ID);
@@ -33,9 +32,15 @@
       'post_content'  => false,      
       'post_title'    => false,
       'post_type'     => false,
-      'post_excerpt'  => false      
+      'post_excerpt'  => false,
+      'post_meta'     => array()
     );
   }
+
+  if(!isset($getdata_mapping['post_meta'])) {
+    $getdata_mapping['post_meta'] = array();
+  }
+
 
   $SUPPORTED_POST_TYPE = array( 'listing_type', 'page', 'post', 'revision' );
   $SUPPORTED_POST_STATUS = array( 'draft', 'publish', 'pending', 'future', 'private' );
@@ -165,15 +170,12 @@
         <td>Price</td>
         <td>
           <select name='get_data[post_meta][price]'>
-            <?php foreach( $data_columns  as $col_name) { ?>
-                <option <?php if($getdata_mapping["post_content"] == $col_name) echo "selected"; ?>>
+            <?php foreach( $data_columns as $col_name) { ?>
+                <option <?php if($getdata_mapping["post_meta"]["price"] == $col_name) echo "selected"; ?>>
                   <?php echo $col_name; ?>
                 </option>
             <?php } ?>
           </select>
-        </td>
-        <td>
-          <a class='remove-butt'>Remove</a>
         </td>
       </tr>
     </tbody>

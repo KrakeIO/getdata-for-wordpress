@@ -100,9 +100,11 @@ class DataController {
         $this->updatePost($post);
 
       } else {
-        $this->insertPost($post);
+        $post['ID'] = $this->insertPost($post);
 
       }
+      
+      $this->updatePostMeta($post['ID'], $record);      
     }
 
   }
@@ -122,9 +124,12 @@ class DataController {
         $this->updatePost($post);
 
       } else {
-        $this->insertPost($post);
+        $post['ID'] = $this->insertPost($post);
 
       }
+
+      $this->updatePostMeta($post['ID'], $record);
+
     }
   }  
 
@@ -141,7 +146,15 @@ class DataController {
         $post['ID'] = $existing_post_id;
         $this->updatePost($post);
       }
-    }    
+    }
+  }
+
+  public function updatePostMeta($post_id, $record) {
+    $meta_keys = array_keys($this->data_mapping['post_meta']);
+    foreach($meta_keys as $meta_key) {
+      update_post_meta($post_id, $meta_key, $record[$meta_key]); 
+    }
+
   }
 
   public function getPostTitleColumn() {
@@ -178,7 +191,7 @@ class DataController {
   }
 
   public function insertPost($post) {
-    $insert_error = wp_insert_post($post, true);
+    return wp_insert_post($post, true);
 
   }
 
