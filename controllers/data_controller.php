@@ -103,7 +103,7 @@ class DataController {
         $post['ID'] = $this->insertPost($post);
 
       }
-      
+
       $this->updatePostMeta($post['ID'], $record);      
     }
 

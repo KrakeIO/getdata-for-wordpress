@@ -191,10 +191,9 @@
     // Gets the raw STRING response from the Data Export Server 
     public function getData($data_feed_url) {
       $ch = curl_init();
-      $timeout = 5;
       curl_setopt($ch, CURLOPT_URL, $data_feed_url);
       curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-      curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $timeout);
+      curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 0);
       $data = curl_exec($ch);
       curl_close($ch);
       return $data;    
